@@ -73,6 +73,10 @@ class StaticMaps {
     this.centerX = 0;
     this.centerY = 0;
     this.zoom = 0;
+
+    // # Proxy Agent options
+    this.httpProxyAgent = this.options.httpProxyAgent || null;
+    this.httpsProxyAgent = this.options.httpsProxyAgent || null;
   }
 
   addLine(options) {
@@ -509,6 +513,10 @@ class StaticMaps {
               },
               url: icon.file,
               responseType: 'buffer',
+              agent: {
+                http: this.httpProxyAgent,
+                https: this.httpsProxyAgent,
+              },
             });
             icon.data = await sharp(img.body).toBuffer();
           } else {
@@ -547,6 +555,10 @@ class StaticMaps {
       // resolveWithFullResponse: true,
       headers: this.tileRequestHeader || {},
       timeout: this.tileRequestTimeout,
+      agent: {
+        http: this.httpProxyAgent,
+        https: this.httpsProxyAgent,
+      },
     };
 
     try {
