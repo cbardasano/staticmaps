@@ -4,7 +4,10 @@
   "description": "A Node.js library for creating map images with markers, polylines, polygons and text.",
   "author": "Stephan Georg <s.georg@hey.com>",
   "license": "MIT",
-  "repository": "github:cbardasano/staticmaps",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbardasano/staticmaps.git"
+  },
   "main": "./dist/staticmaps.js",
   "directories": {
     "test": "test"
