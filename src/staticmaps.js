@@ -1,10 +1,10 @@
-import got from 'got';
 import sharp from 'sharp';
 import find from 'lodash.find';
 import uniqBy from 'lodash.uniqby';
 import url from 'url';
 import chunk from 'lodash.chunk';
 import { mapSeries } from 'modern-async';
+import axios from 'axios';
 
 import Image from './image';
 import IconMarker from './marker';
@@ -507,18 +507,12 @@ class StaticMaps {
         try {
           // Load marker from remote url
           if (isUrl) {
-            const img = await got.get({
-              https: {
-                rejectUnauthorized: false,
-              },
-              url: icon.file,
-              responseType: 'buffer',
-              agent: {
-                http: this.httpProxyAgent,
-                https: this.httpsProxyAgent,
-              },
+            const img = await axios.get(icon.file, {
+              responseType: 'arraybuffer',
+              httpsAgent: this.httpsProxyAgent,
+              httpAgent: this.httpProxyAgent,
             });
-            icon.data = await sharp(img.body).toBuffer();
+            icon.data = await sharp(img.data).toBuffer();
           } else {
             // Load marker from local fs
             icon.data = await sharp(icon.file).toBuffer();
@@ -550,24 +544,19 @@ class StaticMaps {
    */
   async getTile(data) {
     const options = {
-      url: data.url,
-      responseType: 'buffer',
-      // resolveWithFullResponse: true,
+      responseType: 'arraybuffer',
       headers: this.tileRequestHeader || {},
       timeout: this.tileRequestTimeout,
-      agent: {
-        http: this.httpProxyAgent,
-        https: this.httpsProxyAgent,
-      },
+      httpAgent: this.httpProxyAgent,
+      httpsAgent: this.httpsProxyAgent,
     };
 
     try {
-      const res = await got.get(options);
-      const { body, headers } = res;
+      const res = await axios.get(data.url, options);
+      const { data: body, headers } = res;
 
       const contentType = headers['content-type'];
       if (!contentType.startsWith('image/')) throw new Error('Tiles server response with wrong data');
-      // console.log(headers);
 
       return {
         success: true,
